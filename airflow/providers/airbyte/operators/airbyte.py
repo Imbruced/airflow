@@ -20,6 +20,8 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING, Any, Literal, Sequence
 
+from openlineage.client.generated.base import InputDataset, OutputDataset
+
 from airflow.configuration import conf
 from airflow.exceptions import AirflowException
 from airflow.models import BaseOperator
@@ -59,7 +61,6 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         Defaults to 3 seconds.
     :param timeout: Optional. The amount of time, in seconds, to wait for the request to complete.
         Only used when ``asynchronous`` is False. Defaults to 3600 seconds (or 1 hour).
-    :param namespace: Optional. The namespace to use for the OpenLineage metadata. Defaults to "default".
     """
 
     template_fields: Sequence[str] = ("connection_id",)
@@ -75,7 +76,6 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         api_type: Literal["config", "cloud"] = "config",
         wait_seconds: float = 3,
         timeout: float = 3600,
-        namespace: str = "default",
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -87,7 +87,6 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         self.wait_seconds = wait_seconds
         self.asynchronous = asynchronous
         self.deferrable = deferrable
-        self.namespace = namespace
 
     def execute(self, context: Context) -> None:
         """Create Airbyte Job and wait to finish."""
@@ -181,7 +180,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
 
         return self.resolve_metadata(
             connection=connection,
-            namespace=self.namespace,
+            namespace="airbyte",
             destination=destination_response,
             job_statistics=jobs_statistics,
         )
@@ -250,7 +249,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
             schema_facet = self.get_schema(ol_schema_resolver, properties)
 
             outputs.append(
-                Dataset(
+                OutputDataset(
                     namespace=namespace,
                     name=f"{resolved_schema}.{target_table_name}"
                     if resolved_schema != ""
@@ -266,7 +265,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
             )
 
             inputs.append(
-                Dataset(
+                InputDataset(
                     namespace=namespace,
                     name=f"{input_schema}.{stream_name}" if input_schema != "" else stream_name,
                     facets={"schema": schema_facet},
