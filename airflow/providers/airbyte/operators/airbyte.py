@@ -20,8 +20,6 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING, Any, Literal, Sequence
 
-from openlineage.client.generated.base import InputDataset, OutputDataset
-
 from airflow.configuration import conf
 from airflow.exceptions import AirflowException
 from airflow.models import BaseOperator
@@ -32,9 +30,7 @@ from airflow.providers.airbyte.utils.utils import get_field_type, get_streams, r
 if TYPE_CHECKING:
     from openlineage.client.generated.column_lineage_dataset import ColumnLineageDatasetFacet
     from openlineage.client.generated.schema_dataset import SchemaDatasetFacet, SchemaDatasetFacetFields
-    from openlineage.client.generated.external_query_run import ExternalQueryRunFacet
-    from openlineage.client.generated.output_statistics_output_dataset import OutputStatisticsOutputDatasetFacet
-
+    from openlineage.client.generated.base import InputDataset
     from airflow.providers.airbyte.hooks.model import _JobStatistics
     from airflow.providers.openlineage.extractors import OperatorLineage
     from airflow.utils.context import Context
@@ -206,12 +202,12 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         :param job_statistics: JobStatistics object
         :return:
         """
-        from openlineage.client.generated.base import Dataset
+        from openlineage.client.generated.external_query_run import ExternalQueryRunFacet
+        from openlineage.client.generated.output_statistics_output_dataset import (
+            OutputStatisticsOutputDatasetFacet,
+        )
 
         from airflow.providers.openlineage.extractors import OperatorLineage
-        from openlineage.client.generated.output_statistics_output_dataset import (
-            OutputStatisticsOutputDatasetFacet)
-        from openlineage.client.generated.external_query_run import ExternalQueryRunFacet
 
         ol_schema_resolver = _AirbyteOlSchemaResolver()
 
@@ -249,7 +245,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
             schema_facet = self.get_schema(ol_schema_resolver, properties)
 
             outputs.append(
-                OutputDataset(
+                InputDataset(
                     namespace=namespace,
                     name=f"{resolved_schema}.{target_table_name}"
                     if resolved_schema != ""
