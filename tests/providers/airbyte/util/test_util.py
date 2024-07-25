@@ -21,171 +21,164 @@ from openlineage.client.generated.schema_dataset import SchemaDatasetFacetFields
 from airflow.providers.airbyte.operators.airbyte import _AirbyteOlSchemaResolver
 
 
-class TestMapAirbyteTypesToOL:
-    def test_map_airbyte_types_to_ol(self):
-        schema_resolver = _AirbyteOlSchemaResolver()
+def test_map_airbyte_types_to_ol(self):
+    schema_resolver = _AirbyteOlSchemaResolver()
 
-        result = schema_resolver.map_airbyte_type_to_ol_schema_field(
-            {
-                # primitive types
-                "field1": {"type": "string", "format": "date-time"},
-                "field2": {
-                    "type": "integer",
+    result = schema_resolver.map_airbyte_type_to_ol_schema_field(
+        {
+            # primitive types
+            "field1": {"type": "string", "format": "date-time"},
+            "field2": {
+                "type": "integer",
+            },
+            "field3": {
+                "type": "number",
+            },
+            "field4": {
+                "type": "boolean",
+            },
+            "field5": {
+                "type": "string",
+            },
+            "field6": {"type": "string", "format": "date"},
+            # complex types
+            "field7": {
+                "type": "object",
+                "properties": {
+                    "field3": {
+                        "type": "string",
+                    }
                 },
-                "field3": {
-                    "type": "number",
-                },
-                "field4": {
-                    "type": "boolean",
-                },
-                "field5": {
+            },
+            # array of primitive types
+            "field8": {
+                "type": "array",
+                "items": {
                     "type": "string",
                 },
-                "field6": {"type": "string", "format": "date"},
-                # complex types
-                "field7": {
+            },
+            # array of complex types
+            "field9": {
+                "type": "array",
+                "items": {
                     "type": "object",
                     "properties": {
-                        "field3": {
+                        "field1": {
                             "type": "string",
                         }
                     },
                 },
-                # array of primitive types
-                "field8": {
+            },
+            # array of array of primitive types
+            "field10": {
+                "type": "array",
+                "items": {
                     "type": "array",
                     "items": {
                         "type": "string",
                     },
                 },
-                # array of complex types
-                "field9": {
+            },
+            # array of array of complex types
+            "field11": {
+                "type": "array",
+                "items": {
                     "type": "array",
                     "items": {
                         "type": "object",
                         "properties": {
                             "field1": {
                                 "type": "string",
-                            }
-                        },
-                    },
-                },
-                # array of array of primitive types
-                "field10": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                        },
-                    },
-                },
-                # array of array of complex types
-                "field11": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "field1": {
-                                    "type": "string",
-                                },
-                                "field2": {
-                                    "type": "integer",
-                                },
-                                "field3": {
-                                    "type": "boolean",
-                                },
+                            },
+                            "field2": {
+                                "type": "integer",
+                            },
+                            "field3": {
+                                "type": "boolean",
                             },
                         },
                     },
                 },
-            }
-        )
+            },
+        }
+    )
 
-        assert [
-            SchemaDatasetFacetFields(name="field2", type="int", description=None, fields=[]),
-            SchemaDatasetFacetFields(name="field3", type="float", description=None, fields=[]),
-            SchemaDatasetFacetFields(name="field4", type="boolean", description=None, fields=[]),
-            SchemaDatasetFacetFields(name="field5", type="string", description=None, fields=[]),
-            SchemaDatasetFacetFields(name="field6", type="date", description=None, fields=[]),
-            SchemaDatasetFacetFields(
-                name="field7",
-                type="struct",
-                description=None,
-                fields=[SchemaDatasetFacetFields(name="field3", type="string", description=None, fields=[])],
-            ),
-            SchemaDatasetFacetFields(
-                name="field8",
-                type="array",
-                description=None,
-                fields=[
-                    SchemaDatasetFacetFields(name="_element", type="string", description=None, fields=[])
-                ],
-            ),
-            SchemaDatasetFacetFields(
-                name="field9",
-                type="array",
-                description=None,
-                fields=[
-                    SchemaDatasetFacetFields(
-                        name="_element",
-                        type="struct",
-                        description=None,
-                        fields=[
-                            SchemaDatasetFacetFields(
-                                name="field1", type="string", description=None, fields=[]
-                            )
-                        ],
-                    )
-                ],
-            ),
-            SchemaDatasetFacetFields(
-                name="field10",
-                type="array",
-                description=None,
-                fields=[
-                    SchemaDatasetFacetFields(
-                        name="_element",
-                        type="array",
-                        description=None,
-                        fields=[
-                            SchemaDatasetFacetFields(
-                                name="_element", type="string", description=None, fields=[]
-                            )
-                        ],
-                    )
-                ],
-            ),
-            SchemaDatasetFacetFields(
-                name="field11",
-                type="array",
-                description=None,
-                fields=[
-                    SchemaDatasetFacetFields(
-                        name="_element",
-                        type="array",
-                        description=None,
-                        fields=[
-                            SchemaDatasetFacetFields(
-                                name="_element",
-                                type="struct",
-                                description=None,
-                                fields=[
-                                    SchemaDatasetFacetFields(
-                                        name="field1", type="string", description=None, fields=[]
-                                    ),
-                                    SchemaDatasetFacetFields(
-                                        name="field2", type="int", description=None, fields=[]
-                                    ),
-                                    SchemaDatasetFacetFields(
-                                        name="field3", type="boolean", description=None, fields=[]
-                                    ),
-                                ],
-                            )
-                        ],
-                    )
-                ],
-            ),
-        ] == result
+    assert [
+        SchemaDatasetFacetFields(name="field2", type="int", description=None, fields=[]),
+        SchemaDatasetFacetFields(name="field3", type="float", description=None, fields=[]),
+        SchemaDatasetFacetFields(name="field4", type="boolean", description=None, fields=[]),
+        SchemaDatasetFacetFields(name="field5", type="string", description=None, fields=[]),
+        SchemaDatasetFacetFields(name="field6", type="date", description=None, fields=[]),
+        SchemaDatasetFacetFields(
+            name="field7",
+            type="struct",
+            description=None,
+            fields=[SchemaDatasetFacetFields(name="field3", type="string", description=None, fields=[])],
+        ),
+        SchemaDatasetFacetFields(
+            name="field8",
+            type="array",
+            description=None,
+            fields=[SchemaDatasetFacetFields(name="_element", type="string", description=None, fields=[])],
+        ),
+        SchemaDatasetFacetFields(
+            name="field9",
+            type="array",
+            description=None,
+            fields=[
+                SchemaDatasetFacetFields(
+                    name="_element",
+                    type="struct",
+                    description=None,
+                    fields=[
+                        SchemaDatasetFacetFields(name="field1", type="string", description=None, fields=[])
+                    ],
+                )
+            ],
+        ),
+        SchemaDatasetFacetFields(
+            name="field10",
+            type="array",
+            description=None,
+            fields=[
+                SchemaDatasetFacetFields(
+                    name="_element",
+                    type="array",
+                    description=None,
+                    fields=[
+                        SchemaDatasetFacetFields(name="_element", type="string", description=None, fields=[])
+                    ],
+                )
+            ],
+        ),
+        SchemaDatasetFacetFields(
+            name="field11",
+            type="array",
+            description=None,
+            fields=[
+                SchemaDatasetFacetFields(
+                    name="_element",
+                    type="array",
+                    description=None,
+                    fields=[
+                        SchemaDatasetFacetFields(
+                            name="_element",
+                            type="struct",
+                            description=None,
+                            fields=[
+                                SchemaDatasetFacetFields(
+                                    name="field1", type="string", description=None, fields=[]
+                                ),
+                                SchemaDatasetFacetFields(
+                                    name="field2", type="int", description=None, fields=[]
+                                ),
+                                SchemaDatasetFacetFields(
+                                    name="field3", type="boolean", description=None, fields=[]
+                                ),
+                            ],
+                        )
+                    ],
+                )
+            ],
+        ),
+    ] == result
