@@ -68,6 +68,7 @@ hooks:
   - integration-name: Airbyte
     python-modules:
       - airflow.providers.airbyte.hooks.airbyte
+      - airflow.providers.airbyte.hooks.validation
 
 sensors:
   - integration-name: Airbyte

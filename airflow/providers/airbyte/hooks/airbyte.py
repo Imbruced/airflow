@@ -20,6 +20,7 @@ from __future__ import annotations
 import base64
 import json
 import time
+from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
@@ -27,7 +28,6 @@ import aiohttp
 from aiohttp import ClientResponseError
 
 from airflow.exceptions import AirflowException
-from airflow.providers.airbyte.hooks.model import _JobStatistics
 from airflow.providers.airbyte.hooks.validation import is_connection_valid
 from airflow.providers.http.hooks.http import HttpHook
 
@@ -387,3 +387,9 @@ class AirbyteHook(HttpHook):
             return res.json()
 
         return None
+
+
+@dataclass
+class _JobStatistics:
+    records_emitted: dict[str, Any]
+    number_of_attempts: int

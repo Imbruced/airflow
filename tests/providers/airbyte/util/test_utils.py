@@ -16,11 +16,6 @@
 # under the License.
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any
 
-
-@dataclass
-class _JobStatistics:
-    records_emitted: dict[str, Any]
-    number_of_attempts: int
+def test_model():
+    pass
