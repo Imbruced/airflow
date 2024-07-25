@@ -213,7 +213,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         :param job_statistics: JobStatistics object
         :return:
         """
-        from openlineage.client.generated.base import InputDataset
+        from openlineage.client.generated.base import InputDataset, OutputDataset
         from openlineage.client.generated.external_query_run import ExternalQueryRunFacet
         from openlineage.client.generated.output_statistics_output_dataset import (
             OutputStatisticsOutputDatasetFacet,
@@ -257,7 +257,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
             schema_facet = self.get_schema(ol_schema_resolver, properties)
 
             outputs.append(
-                InputDataset(
+                OutputDataset(
                     namespace=self.resolve_output_namespace(destination),
                     name=f"{resolved_schema}.{target_table_name}"
                     if resolved_schema != ""
@@ -265,6 +265,8 @@ class AirbyteTriggerSyncOperator(BaseOperator):
                     facets={
                         "schema": schema_facet,
                         "columnLineage": column_lineage,
+                    },
+                    outputFacets={
                         "outputStatistics": OutputStatisticsOutputDatasetFacet(
                             rowCount=job_statistics.records_emitted.get(stream_name, 0),
                         ),
