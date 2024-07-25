@@ -30,7 +30,7 @@ from airflow.providers.airbyte.utils.utils import get_field_type, get_streams, r
 if TYPE_CHECKING:
     from openlineage.client.generated.column_lineage_dataset import ColumnLineageDatasetFacet
     from openlineage.client.generated.schema_dataset import SchemaDatasetFacet, SchemaDatasetFacetFields
-    from openlineage.client.generated.base import InputDataset
+
     from airflow.providers.airbyte.hooks.model import _JobStatistics
     from airflow.providers.openlineage.extractors import OperatorLineage
     from airflow.utils.context import Context
@@ -170,14 +170,24 @@ class AirbyteTriggerSyncOperator(BaseOperator):
             self.log.warning("DestinationID is missing in the response")
             return OperatorLineage()
 
+        source_id = connection.get("sourceId", None)
+        if source_id is None:
+            self.log.warning("SourceID is missing in the response")
+            return OperatorLineage()
+
         destination_response = hook.get_airbyte_destination(destination_id)
         if destination_response is None:
+            return OperatorLineage()
+
+        source_response = hook.get_airbyte_source(source_id)
+        if source_response is None:
             return OperatorLineage()
 
         return self.resolve_metadata(
             connection=connection,
             namespace="airbyte",
             destination=destination_response,
+            source_response=source_response,
             job_statistics=jobs_statistics,
         )
 
@@ -185,6 +195,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         self,
         connection: dict[str, Any],
         destination: dict[str, Any],
+        source_response: dict[str, Any],
         namespace: str,
         job_statistics: _JobStatistics,
     ) -> OperatorLineage:
@@ -202,13 +213,13 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         :param job_statistics: JobStatistics object
         :return:
         """
+        from openlineage.client.generated.base import InputDataset
         from openlineage.client.generated.external_query_run import ExternalQueryRunFacet
         from openlineage.client.generated.output_statistics_output_dataset import (
             OutputStatisticsOutputDatasetFacet,
         )
 
         from airflow.providers.openlineage.extractors import OperatorLineage
-        from openlineage.client.generated.base import InputDataset
 
         ol_schema_resolver = _AirbyteOlSchemaResolver()
 
@@ -247,7 +258,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
 
             outputs.append(
                 InputDataset(
-                    namespace=namespace,
+                    namespace=self.resolve_output_namespace(destination),
                     name=f"{resolved_schema}.{target_table_name}"
                     if resolved_schema != ""
                     else target_table_name,
@@ -263,7 +274,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
 
             inputs.append(
                 InputDataset(
-                    namespace=namespace,
+                    namespace=self.resolve_input_namespace(source_response),
                     name=f"{input_schema}.{stream_name}" if input_schema != "" else stream_name,
                     facets={"schema": schema_facet},
                 )
@@ -279,6 +290,34 @@ class AirbyteTriggerSyncOperator(BaseOperator):
                 )
             },
         )
+
+    @staticmethod
+    def resolve_input_namespace(source: dict[str, Any]) -> str:
+        source_name = source.get("sourceName", "").lower()
+
+        configuration = source.get("connectionConfiguration", {})
+
+        host = configuration.get("host", "")
+        port = configuration.get("port", "")
+
+        if port:
+            return f"{source_name}://{host}:{port}"
+
+        return f"{source_name}://{host}"
+
+    @staticmethod
+    def resolve_output_namespace(destination: dict[str, Any]) -> str:
+        destination_name = destination.get("destinationName", "").lower()
+
+        configuration = destination.get("connectionConfiguration", {})
+
+        host = configuration.get("host", "")
+        port = configuration.get("port", "")
+
+        if port:
+            return f"{destination_name}://{host}:{port}"
+
+        return f"{destination_name}://{host}"
 
     @staticmethod
     def get_schema(

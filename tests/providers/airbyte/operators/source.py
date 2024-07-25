@@ -16,24 +16,24 @@
 # under the License.
 from __future__ import annotations
 
-destination_snowflake = {
-    "destinationDefinitionId": "424892c4-daac-4491-b35d-c6688ba547ba",
-    "destinationId": "d401bafb-aa51-4c70-8a1c-1aa07f3d0a2d",
+source_postgresql = {
+    "sourceDefinitionId": "decd338e-5647-4c0b-adf4-da0e75f5a750",
+    "sourceId": "574b08f1-6c9e-46be-95e5-8a1669ba0847",
     "workspaceId": "ef6c54d6-08b4-4b02-bbf4-1044e178f984",
     "connectionConfiguration": {
-        "host": "localhost",
-        "role": "",
-        "schema": "public",
-        "database": "ol",
-        "username": "",
-        "warehouse": "compute_wh",
-        "credentials": {"password": "", "auth_type": "Username and Password"},
-        "disable_type_dedupe": False,
-        "retention_period_days": 1,
+        "host": "host.docker.internal",
+        "port": 5439,
+        "schemas": ["public"],
+        "database": "destination",
+        "password": "**********",
+        "ssl_mode": {"mode": "disable"},
+        "username": "airbyte",
+        "tunnel_method": {"tunnel_method": "NO_TUNNEL"},
+        "replication_method": {"method": "Standard"},
     },
-    "name": "Snowflake",
-    "destinationName": "Snowflake",
-    "icon": "https://connectors.airbyte.com/files/metadata/airbyte/destination-snowflake/latest/icon.svg",
+    "name": "Postgres",
+    "sourceName": "Postgres",
+    "icon": "https://connectors.airbyte.com/files/metadata/airbyte/source-postgres/latest/icon.svg",
     "isVersionOverrideApplied": False,
     "supportState": "supported",
 }

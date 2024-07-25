@@ -31,6 +31,7 @@ from tests.providers.airbyte.operators.connection import (
     sync_catalog_is_missing,
 )
 from tests.providers.airbyte.operators.destination import destination_snowflake
+from tests.providers.airbyte.operators.source import source_postgresql
 
 
 class TestAirbyteTriggerSyncOp:
@@ -65,6 +66,7 @@ class TestAirbyteTriggerSyncOp:
             job_id=self.job_id, wait_seconds=self.wait_seconds, timeout=self.timeout
         )
 
+    @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_source")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_job_statistics")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_destination")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_connection_info")
@@ -75,14 +77,19 @@ class TestAirbyteTriggerSyncOp:
         mock_get_airbyte_connection_info,
         mock_get_airbyte_destination,
         mock_get_job_statistics,
+        mock_get_airbyte_source,
     ):
         connection = connection_nested
 
         destination = destination_snowflake
 
+        source = source_postgresql
+
         mock_get_airbyte_connection_info.return_value = connection
 
         mock_get_airbyte_destination.return_value = destination
+
+        mock_get_airbyte_source.return_value = source
 
         mock_get_job_statistics.return_value = _JobStatistics(
             number_of_attempts=1,
@@ -106,9 +113,10 @@ class TestAirbyteTriggerSyncOp:
         inputs = result.inputs[0]
         outputs = result.outputs[0]
 
-        assert "airbyte" == inputs.namespace
+        assert "postgres://host.docker.internal:5439" == inputs.namespace
         assert "pokemon" == inputs.name
         assert "public.pokemon" == outputs.name
+        assert "snowflake://localhost" == outputs.namespace
 
         schema = inputs.facets["schema"]
         input_fields = schema.fields
@@ -192,6 +200,7 @@ class TestAirbyteTriggerSyncOp:
             ),
         ]
 
+    @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_source")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_job_statistics")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_destination")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_connection_info")
@@ -202,12 +211,17 @@ class TestAirbyteTriggerSyncOp:
         mock_get_airbyte_connection_info,
         mock_get_airbyte_destination,
         mock_get_job_statistics,
+        mock_get_airbyte_source,
     ):
         destination = destination_snowflake
 
         mock_get_airbyte_connection_info.status_code = mock.Mock(status_code=200)
 
         mock_get_airbyte_connection_info.return_value = connection_flat
+
+        source = source_postgresql
+
+        mock_get_airbyte_source.return_value = source
 
         mock_get_airbyte_destination.return_value = mock.Mock(
             **{"json.return_value": destination, "status_code": 200}
@@ -272,6 +286,7 @@ class TestAirbyteTriggerSyncOp:
             SchemaDatasetFacetFields(name="name", type="string", description=None, fields=[]),
         ]
 
+    @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_source")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_job_statistics")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_destination")
     @mock.patch("airflow.providers.airbyte.hooks.airbyte.AirbyteHook.get_airbyte_connection_info")
@@ -282,6 +297,7 @@ class TestAirbyteTriggerSyncOp:
         mock_get_airbyte_connection_info,
         mock_get_airbyte_destination,
         mock_get_job_statistics,
+        mock_get_airbyte_source,
     ):
         test_cases = {
             "sync catalog is missing": {
@@ -298,6 +314,9 @@ class TestAirbyteTriggerSyncOp:
 
         for test_case in test_cases.values():
             destination = destination_snowflake
+            source = source_postgresql
+
+            mock_get_airbyte_source.return_value = source
 
             mock_get_airbyte_connection_info.status_code = mock.Mock(status_code=200)
 

@@ -361,3 +361,29 @@ class AirbyteHook(HttpHook):
             return res.json()
 
         return None
+
+    def get_airbyte_source(self, source_id: str) -> dict[str, Any] | None:
+        """
+        Get the source info for Airbyte.
+
+        :return: The source info for Airbyte.
+        """
+        if self.api_type == "config":
+            res = self.run(
+                endpoint=f"api/{self.api_version}/sources/get",
+                headers={
+                    "accept": "application/json",
+                    "authorization": f"Bearer {self.airbyte_connection.password}",
+                },
+                json={
+                    "sourceId": source_id,
+                },
+            )
+
+            if res.status_code != 200:
+                self.log.error("Error getting source info: %s", res.text)
+                return None
+
+            return res.json()
+
+        return None
