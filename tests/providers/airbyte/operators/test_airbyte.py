@@ -95,7 +95,6 @@ class TestAirbyteTriggerSyncOp:
             connection_id=self.connection_id,
             wait_seconds=self.wait_seconds,
             timeout=self.timeout,
-            namespace="test_namespace",
         )
 
         op.job_id = 10
@@ -107,7 +106,7 @@ class TestAirbyteTriggerSyncOp:
         inputs = result.inputs[0]
         outputs = result.outputs[0]
 
-        assert "test_namespace" == inputs.namespace
+        assert "airbyte" == inputs.namespace
         assert "pokemon" == inputs.name
         assert "public.pokemon" == outputs.name
 
@@ -225,7 +224,6 @@ class TestAirbyteTriggerSyncOp:
             connection_id=self.connection_id,
             wait_seconds=self.wait_seconds,
             timeout=self.timeout,
-            namespace="test_namespace",
         )
 
         op.job_id = 10
@@ -320,7 +318,6 @@ class TestAirbyteTriggerSyncOp:
                 connection_id=self.connection_id,
                 wait_seconds=self.wait_seconds,
                 timeout=self.timeout,
-                namespace="test_namespace",
             )
 
             op.job_id = 10

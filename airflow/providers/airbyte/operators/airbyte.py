@@ -208,6 +208,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
         )
 
         from airflow.providers.openlineage.extractors import OperatorLineage
+        from openlineage.client.generated.base import InputDataset
 
         ol_schema_resolver = _AirbyteOlSchemaResolver()
 
