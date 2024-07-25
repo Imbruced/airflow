@@ -259,7 +259,7 @@ class TestAirbyteTriggerSyncOp:
             output_fields[output.name]["schema"] = output.facets["schema"].fields
             output_fields[output.name]["namespace"] = output.namespace
             output_fields[output.name]["name"] = output.name
-            output_fields[output.name]["outputStatistics"] = output.facets["outputStatistics"]
+            output_fields[output.name]["outputStatistics"] = output.outputFacets["outputStatistics"]
 
         assert input_fields["public.vehicle"]["schema"] == [
             SchemaDatasetFacetFields(name="id", type="string", description=None, fields=[]),
