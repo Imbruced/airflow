@@ -209,6 +209,7 @@ class AirbyteTriggerSyncOperator(BaseOperator):
 
         :param connection: it's the response from config API about the connection
         :param destination: it's the response from config API about the destination
+        :param source_response: it's the response from config API about the source
         :param namespace: it's namespace for the OpenLineage metadata
         :param job_statistics: JobStatistics object
         :return:
