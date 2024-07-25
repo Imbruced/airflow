@@ -22,7 +22,7 @@ from unittest import mock
 
 from openlineage.client.generated.schema_dataset import SchemaDatasetFacetFields
 
-from airflow.providers.airbyte.hooks.model import _JobStatistics
+from airflow.providers.airbyte.hooks.airbyte import _JobStatistics
 from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
 from tests.providers.airbyte.operators.connection import (
     connection_flat,
