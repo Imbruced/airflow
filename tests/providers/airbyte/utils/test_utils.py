@@ -21,7 +21,7 @@ from openlineage.client.generated.schema_dataset import SchemaDatasetFacetFields
 from airflow.providers.airbyte.operators.airbyte import _AirbyteOlSchemaResolver
 
 
-def test_map_airbyte_types_to_ol(self):
+def test_map_airbyte_types_to_ol():
     schema_resolver = _AirbyteOlSchemaResolver()
 
     result = schema_resolver.map_airbyte_type_to_ol_schema_field(
