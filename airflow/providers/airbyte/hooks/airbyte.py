@@ -391,5 +391,7 @@ class AirbyteHook(HttpHook):
 
 @dataclass
 class JobStatistics:
+    """Job statistics object."""
+
     records_emitted: dict[str, Any]
     number_of_attempts: int
