@@ -89,12 +89,11 @@ def resolve_table_schema(
     User can specify the schema for the destination table, it can be source schema, destination schema or
     custom format schema.
 
-    :param name_source: str it's an enum field saying which option has been selected, source, destination or
-    customformat
+    :param name_source: str enum saying which option has been selected, source, destination or `customformat`
     :param source: str source schema
     :param destination: str destination schema
     :param connection: str custom format schema
-    :return: str schema of the table
+    :return:
     """
     if name_source == "source":
         return source.get("namespace", None)

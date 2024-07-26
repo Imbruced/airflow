@@ -22,7 +22,7 @@ from unittest import mock
 
 from openlineage.client.generated.schema_dataset import SchemaDatasetFacetFields
 
-from airflow.providers.airbyte.hooks.airbyte import _JobStatistics
+from airflow.providers.airbyte.hooks.airbyte import JobStatistics
 from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
 from tests.providers.airbyte.operators.connection import (
     connection_flat,
@@ -91,7 +91,7 @@ class TestAirbyteTriggerSyncOp:
 
         mock_get_airbyte_source.return_value = source
 
-        mock_get_job_statistics.return_value = _JobStatistics(
+        mock_get_job_statistics.return_value = JobStatistics(
             number_of_attempts=1,
             records_emitted={"pokemon": 1},
         )
@@ -227,7 +227,7 @@ class TestAirbyteTriggerSyncOp:
             **{"json.return_value": destination, "status_code": 200}
         )
 
-        mock_get_job_statistics.return_value = _JobStatistics(
+        mock_get_job_statistics.return_value = JobStatistics(
             number_of_attempts=1,
             records_emitted={"vehicle": 100},
         )
@@ -320,7 +320,7 @@ class TestAirbyteTriggerSyncOp:
 
             mock_get_airbyte_connection_info.status_code = mock.Mock(status_code=200)
 
-            mock_get_job_statistics.return_value = _JobStatistics(
+            mock_get_job_statistics.return_value = JobStatistics(
                 number_of_attempts=1,
                 records_emitted={"pokemon": 1},
             )

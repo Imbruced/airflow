@@ -303,7 +303,7 @@ class AirbyteHook(HttpHook):
 
         return None
 
-    def get_job_statistics(self, job_id: int) -> _JobStatistics:
+    def get_job_statistics(self, job_id: int) -> JobStatistics:
         """
         Get the statistics for a job in Airbyte.
 
@@ -331,7 +331,7 @@ class AirbyteHook(HttpHook):
                     stats = stream_stat.get("stats", {})
                     records_emitted[stream_name] = stats.get("recordsEmitted", 0)
 
-        return _JobStatistics(
+        return JobStatistics(
             number_of_attempts=number_of_attempts,
             records_emitted=records_emitted,
         )
@@ -390,6 +390,6 @@ class AirbyteHook(HttpHook):
 
 
 @dataclass
-class _JobStatistics:
+class JobStatistics:
     records_emitted: dict[str, Any]
     number_of_attempts: int
