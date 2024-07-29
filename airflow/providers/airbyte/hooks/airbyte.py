@@ -296,7 +296,7 @@ class AirbyteHook(HttpHook):
 
             valid_connection = is_connection_valid(res.json())
             if not valid_connection:
-                self.log.warning("Connection is not valid")
+                self.log.warning("connection response from api has invalid schema")
                 return None
 
             return res.json()
@@ -355,7 +355,7 @@ class AirbyteHook(HttpHook):
             )
 
             if res.status_code != 200:
-                self.log.error("Error getting destination info: %s", res.text)
+                self.log.error("error getting destination info: %s", res.text)
                 return None
 
             return res.json()
@@ -381,7 +381,7 @@ class AirbyteHook(HttpHook):
             )
 
             if res.status_code != 200:
-                self.log.error("Error getting source info: %s", res.text)
+                self.log.error("error getting source info: %s", res.text)
                 return None
 
             return res.json()
