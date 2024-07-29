@@ -609,7 +609,7 @@ def assert_outputs_are_printed(expected_outputs: dict[str, str], stderr: str):
                 "skip-pre-commits": "identity,lint-helm-chart,mypy-airflow,mypy-dev,mypy-docs,mypy-providers,ts-compile-format-lint-www",
                 "run-kubernetes-tests": "false",
                 "upgrade-to-newer-dependencies": "false",
-                "parallel-test-types-list-as-string": "Always Providers[airbyte,http]",
+                "parallel-test-types-list-as-string": "Always Providers[airbyte,http,openlineage]",
                 "needs-mypy": "true",
                 "mypy-folders": "['providers']",
             },

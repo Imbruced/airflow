@@ -16,7 +16,7 @@
 # under the License.
 from __future__ import annotations
 
-from airflow.providers.airbyte.hooks.validation import is_connection_valid
+from airflow.providers.airbyte.utils.validation import is_connection_valid
 
 
 def test_schema_validation_invalid():

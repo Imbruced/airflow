@@ -28,7 +28,7 @@ import aiohttp
 from aiohttp import ClientResponseError
 
 from airflow.exceptions import AirflowException
-from airflow.providers.airbyte.hooks.validation import is_connection_valid
+from airflow.providers.airbyte.utils.validation import is_connection_valid
 from airflow.providers.http.hooks.http import HttpHook
 
 if TYPE_CHECKING:
