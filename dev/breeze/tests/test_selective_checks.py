@@ -457,7 +457,7 @@ def assert_outputs_are_printed(expected_outputs: dict[str, str], stderr: str):
                     "tests/providers/airbyte/file.py",
                 ),
                 {
-                    "affected-providers-list-as-string": "airbyte http",
+                    "affected-providers-list-as-string": "airbyte http openlineage",
                     "all-python-versions": "['3.8']",
                     "all-python-versions-list-as-string": "3.8",
                     "python-versions": "['3.8']",
@@ -595,7 +595,7 @@ def assert_outputs_are_printed(expected_outputs: dict[str, str], stderr: str):
         pytest.param(
             ("tests/providers/airbyte/__init__.py",),
             {
-                "affected-providers-list-as-string": "airbyte http",
+                "affected-providers-list-as-string": "airbyte http openlineage",
                 "all-python-versions": "['3.8']",
                 "all-python-versions-list-as-string": "3.8",
                 "python-versions": "['3.8']",
@@ -1633,14 +1633,14 @@ def test_upgrade_to_newer_dependencies(
         pytest.param(
             ("docs/apache-airflow-providers-airbyte/docs.rst",),
             {
-                "docs-list-as-string": "airbyte http",
+                "docs-list-as-string": "airbyte http openlineage",
             },
             id="Airbyte provider docs changed",
         ),
         pytest.param(
             ("docs/apache-airflow-providers-airbyte/docs.rst", "docs/apache-airflow/docs.rst"),
             {
-                "docs-list-as-string": "apache-airflow airbyte http",
+                "docs-list-as-string": "apache-airflow airbyte http openlineage",
             },
             id="Airbyte provider and airflow core docs changed",
         ),
@@ -1651,7 +1651,7 @@ def test_upgrade_to_newer_dependencies(
                 "docs/apache-airflow-providers/docs.rst",
             ),
             {
-                "docs-list-as-string": "apache-airflow apache-airflow-providers airbyte http",
+                "docs-list-as-string": "apache-airflow apache-airflow-providers airbyte http openlineage",
             },
             id="Airbyte provider and airflow core and common provider docs changed",
         ),
