@@ -39,7 +39,7 @@ from airflow.executors.executor_loader import ExecutorLoader
 from airflow.utils.context import Context
 from airflow.utils.helpers import parse_template_string, render_template_to_string
 from airflow.utils.log.logging_mixin import SetContextPropagate
-from airflow.utils.log.non_caching_file_handler import NonCachingFileHandler
+from airflow.utils.log.non_caching_file_handler import NonCachingRotatingFileHandler
 from airflow.utils.session import provide_session
 from airflow.utils.state import State, TaskInstanceState
 
@@ -47,7 +47,8 @@ if TYPE_CHECKING:
     from pendulum import DateTime
 
     from airflow.models import DagRun
-    from airflow.models.taskinstance import TaskInstance, TaskInstanceKey
+    from airflow.models.taskinstance import TaskInstance
+    from airflow.models.taskinstancekey import TaskInstanceKey
     from airflow.serialization.pydantic.dag_run import DagRunPydantic
     from airflow.serialization.pydantic.taskinstance import TaskInstancePydantic
 
@@ -175,6 +176,9 @@ class FileTaskHandler(logging.Handler):
 
     :param base_log_folder: Base log folder to place logs.
     :param filename_template: template filename string
+    :param max_bytes: max bytes size for the log file
+    :param backup_count: backup file count for the log file
+    :param delay:  default False -> StreamHandler, True -> Handler
     """
 
     trigger_should_wrap = True
@@ -182,7 +186,14 @@ class FileTaskHandler(logging.Handler):
         "Operator inherits from empty operator and thus does not have logs"
     )
 
-    def __init__(self, base_log_folder: str, filename_template: str | None = None):
+    def __init__(
+        self,
+        base_log_folder: str,
+        filename_template: str | None = None,
+        max_bytes: int = 0,
+        backup_count: int = 0,
+        delay: bool = False,
+    ):
         super().__init__()
         self.handler: logging.Handler | None = None
         self.local_base = base_log_folder
@@ -195,6 +206,9 @@ class FileTaskHandler(logging.Handler):
                 stacklevel=(2 if type(self) == FileTaskHandler else 3),
             )
         self.maintain_propagate: bool = False
+        self.max_bytes = max_bytes
+        self.backup_count = backup_count
+        self.delay = delay
         """
         If true, overrides default behavior of setting propagate=False
 
@@ -223,7 +237,13 @@ class FileTaskHandler(logging.Handler):
             to task logs from a context other than task or trigger run
         """
         local_loc = self._init_file(ti, identifier=identifier)
-        self.handler = NonCachingFileHandler(local_loc, encoding="utf-8")
+        self.handler = NonCachingRotatingFileHandler(
+            local_loc,
+            encoding="utf-8",
+            maxBytes=self.max_bytes,
+            backupCount=self.backup_count,
+            delay=self.delay,
+        )
         if self.formatter:
             self.handler.setFormatter(self.formatter)
         self.handler.setLevel(self.level)
@@ -265,7 +285,7 @@ class FileTaskHandler(logging.Handler):
     @internal_api_call
     @provide_session
     def _render_filename_db_access(
-        *, ti, try_number: int, session=None
+        *, ti: TaskInstance | TaskInstancePydantic, try_number: int, session=None
     ) -> tuple[DagRun | DagRunPydantic, TaskInstance | TaskInstancePydantic, str | None, str | None]:
         ti = _ensure_ti(ti, session)
         dag_run = ti.get_dagrun(session=session)
@@ -281,9 +301,7 @@ class FileTaskHandler(logging.Handler):
             filename = render_template_to_string(jinja_tpl, context)
         return dag_run, ti, str_tpl, filename
 
-    def _render_filename(
-        self, ti: TaskInstance | TaskInstanceKey | TaskInstancePydantic, try_number: int
-    ) -> str:
+    def _render_filename(self, ti: TaskInstance | TaskInstancePydantic, try_number: int) -> str:
         """Return the worker log filename."""
         dag_run, ti, str_tpl, filename = self._render_filename_db_access(ti=ti, try_number=try_number)
         if filename:
