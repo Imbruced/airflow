@@ -296,7 +296,7 @@ class AirbyteHook(HttpHook):
 
             valid_connection = is_connection_valid(res.json())
             if not valid_connection:
-                self.log.warning("connection response from api has invalid schema")
+                self.log.warning("api connection response has invalid schema")
                 return None
 
             return res.json()
